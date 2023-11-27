@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTTP Client</title>
+</head>
+<body>
+  <label for="keyword">Enter Keyword: </label>
+  <input type="text" id="keyword">
+  <button onclick="getUrls()">Get URLs</button>
+
+  <div id="urlList"></div>
+
+  <script>
+    function getUrls() {
+      const keyword = document.getElementById('keyword').value;
+      const ws = new WebSocket('ws://localhost:3000');
+
+      ws.onopen = () => {
+        ws.send(keyword);
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'urls') {
+          displayUrls(data.data);
+        } else if (data.type === 'error') {
+          alert(data.data);
+        }
+      };
+    }
+
+    function displayUrls(urls) {
+      const urlListDiv = document.getElementById('urlList');
+      urlListDiv.innerHTML = '<p>Choose a URL:</p>';
+
+      urls.forEach((url) => {
+        const button = document.createElement('button');
+        button.textContent = url;
+        button.onclick = () => downloadContent(url);
+        urlListDiv.appendChild(button);
+      });
+    }
+
+    function downloadContent(url) {
+      alert(`Downloading content from ${url}`);
+    }
+  </script>
+</body>
+</html>
